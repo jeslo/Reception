@@ -3,7 +3,7 @@ import {Text, View} from 'react-native'
 
 // Style
 
-export default class NavigationScreen extends Component {
+export default class NotificationScreen extends Component {
   render () {
     return (
       <View

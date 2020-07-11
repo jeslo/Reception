@@ -17,8 +17,10 @@ export function * getLoginData ({params}) {
     .then(resp => resp.json())
     .then(r => r)
     .catch(e => console.tron.log('>>>>>>eeeee, e'))
-  // console.warn('>>>', result)
+  console.tron.log('>>>>>>>>>>', result );
+  
   if (result.Flag === 1) {
-    else return yield put(Actions.handleLoginSuccess(result))
-  } else return yield put(Actions.getLoginDetailsFailure(result))
+    yield put(Actions.getLoginDetailsSuccess(result))
+    yield put(NavigationActions.navigate({routeName: 'NotificationScreen'}))
+  } else return yield put(Actions.getLoginDetailsFailure(result.Result))
 }

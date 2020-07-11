@@ -28,5 +28,16 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     marginTop: 20
+  },
+  errorText: {
+    marginBottom: 10,
+    padding: 15,
+    backgroundColor: '#e83a30',
+    color: 'white',
+    fontWeight: 'bold',
+    justifyContent: 'center',
+    borderRadius: 10,
+    textAlign: 'center',
+    overflow: 'hidden'
   }
 })

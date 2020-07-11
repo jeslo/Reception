@@ -15,6 +15,6 @@ import { getLoginData } from './LoginSagas'
 
 export default function * root () {
   yield all([
-    takeLatest(loginTypes.GET_LOGIN_DETAILS_FAILURE, getLoginData)
+    takeLatest(loginTypes.GET_LOGIN_DETAILS_REQUEST, getLoginData)
   ])
 }
