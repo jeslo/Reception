@@ -1,6 +1,7 @@
 import React from 'react'
-import {TextInput, View} from 'react-native'
+import {TextInput, View,Text} from 'react-native'
 import {Colors, Fonts} from '../../Themes'
+import OptionalView from '../../Components/OptionalView'
 const styles = {
   textInput: {
     flex: 1,
@@ -42,6 +43,9 @@ export default class InputText extends React.Component {
           secureTextEntry={this.props.password}
 
         />
+        <OptionalView hide={!this.props.error}>
+          <Text style={styles.error}>{this.props.error}</Text>
+        </OptionalView>
       </View>
     )
   }

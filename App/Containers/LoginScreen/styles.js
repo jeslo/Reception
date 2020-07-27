@@ -4,7 +4,8 @@ export const styles = StyleSheet.create({
   conatiner: {
     flex: 1,
     padding: 20,
-    alignItems: 'center'
+    alignItems: 'center',
+   
   },
   logInBox: {
     marginTop: 20,
@@ -39,5 +40,14 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
     overflow: 'hidden'
-  }
+  },
+  cellItem: {
+    flex: 4,
+    flexDirection: 'column',
+    padding: 8,
+    borderRadius: 15,
+    overflow: 'hidden',
+    backgroundColor: Colors.rbcblue
+    
+},
 })
