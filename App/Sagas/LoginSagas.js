@@ -3,7 +3,7 @@ import {NavigationActions} from 'react-navigation'
 import Actions from '../Redux/LoginRedux'
 
 const LOGIN_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/CRMUserLogin'
-const NOTIFICATION_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/getAllNotificationList'
+const NOTIFICATION_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/GetNotifications'
 const CHECKIN_CONFIRM_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/getAllNotificationList'
 const CHECKIN_DECLINE_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/getAllNotificationList'
 
@@ -27,14 +27,14 @@ export function * getLoginData ({params}) {
   } else return yield put(Actions.getLoginDetailsFailure(result.Result))
 }
 
-export function * getNotifications(params) {
+export function * getNotifications() {
   const postOptions = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       'Content-type': 'application/json',
       Accept: 'application/json',
     },
-    body: JSON.stringify(params),
+    body: JSON.stringify(),
   }
   const result = yield fetch(NOTIFICATION_URL, postOptions)
     .then(resp => resp.json())

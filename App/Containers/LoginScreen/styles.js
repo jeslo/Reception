@@ -50,4 +50,22 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.rbcblue
     
 },
+textAreaView: {
+  flex: 1,
+  alignItems: 'center',
+  paddingLeft: 2,
+  paddingBottom: 5
+},
+textareaContainer: {
+  height: 50,
+  padding: 5,
+  borderRadius: 10,
+  backgroundColor: '#F5FCFF',
+},
+textarea: {
+  textAlignVertical: 'top',
+  height: 170,
+  fontSize: 14,
+  color: '#333',
+},
 })

@@ -6,14 +6,14 @@ const {Types, Creators} = createActions({
   getLoginDetailsSuccess: ['data'],
   getLoginDetailsFailure: ['data'],
 
-  getNotificationRequest: ['params'],
+  getNotificationRequest: [],
   getNotificationSuccess: ['data'],
   getNotificationFailure: ['data'],
 
   getConfirmCheckinRequest: ['params'],
   getConfirmCheckinSuccess: ['data'],
   getConfirmCheckinFailure: ['data'],
-  
+
   getCheckinDeclineRequest: ['params'],
   getCheckinDeclineSuccess: ['data'],
   getCheckinDeclineFailure: ['data'],
@@ -21,7 +21,8 @@ const {Types, Creators} = createActions({
   updateFirstLevelKey: ['key', 'value'],
   getUpdateUserName: ['key', 'value'],
   getUpdatePassword: ['key', 'value'],
-  
+  getUpdateCustomerRemark: ['key', 'value', 'index'],
+
   logoutUser: [],
   loginFlag: [],
 })
@@ -32,6 +33,8 @@ export const INITIAL_STATE = Immutable({
   loginDetails: {},
   loginLoader: {},
   loginFailed: '',
+  notificationDetails: {},
+  confimCheckinStatus: {},
 
   validPage: false,
 
@@ -40,6 +43,10 @@ export const INITIAL_STATE = Immutable({
     error: '',
   },
   password: {
+    value: '',
+    error: '',
+  },
+  customerRemark: {
     value: '',
     error: '',
   },
@@ -63,56 +70,50 @@ export const handleLoginfailure = (state, {data}) =>
     validPage: false,
   })
 
-
 export const handleNotificationRequest = (state, {data}) =>
   state.merge({
     loader: false,
   })
 export const handleNotificationSuccess = (state, {data}) =>
   state.merge({
-    loginFailed: data,
+    notificationDetails: data,
     loader: false,
   })
 export const handleNotificationfailure = (state, {data}) =>
   state.merge({
-    loginFailed: data,
+    notificationDetails: data,
     loader: false,
   })
 
-
 export const handleConfirmCheckinRequest = (state, {data}) =>
   state.merge({
-    loginFailed: data,
     loader: false,
   })
 export const handleConfirmCheckinSuccess = (state, {data}) =>
   state.merge({
-    loginFailed: data,
+    confimCheckinStatus: data,
     loader: false,
   })
 export const handleConfirmCheckinfailure = (state, {data}) =>
   state.merge({
-    loginFailed: data,
+    confimCheckinStatus: data,
     loader: false,
   })
 
-
 export const handleCheckinDeclineRequest = (state, {data}) =>
   state.merge({
-    loginFailed: data,
     loader: false,
   })
 export const handleCheckinDeclineSuccess = (state, {data}) =>
   state.merge({
-    loginFailed: data,
+    declineCheckinStatus: data,
     loader: false,
   })
 export const handleCheckinDeclinefailure = (state, {data}) =>
   state.merge({
-    loginFailed: data,
+    declineCheckinStatus: data,
     loader: false,
   })
-
 
 export const updateFirstLevelKey = (state, {key, value}) =>
   state.merge({
@@ -134,11 +135,27 @@ export const handleupdatePassword = (state, {key, value}) =>
       error: key === 'error' ? value : '',
     }),
   })
+export const handleUpdateCustomerRemark = (state, {key, value, index}) => {
+  const notifications = Immutable.asMutable(
+    state.notificationDetails.NotificationList,
+    {deep: true},
+  )
+  notifications[index] = {
+    ...notifications[index],
+    [key]: value,
+    error: key === 'error' ? value : '',
+  }
+  return state.merge({
+    notificationDetails: state.notificationDetails.merge({
+      NotificationList: Immutable(notifications),
+    }),
+  })
+}
 export const handleGetLogin = (state, {status}) =>
   state.merge({
     loginFailed: '',
   })
-  export const handleLogoutUser = state => INITIAL_STATE
+export const handleLogoutUser = state => INITIAL_STATE
 
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_LOGIN_DETAILS_REQUEST]: setLoader,
@@ -152,7 +169,7 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_CONFIRM_CHECKIN_REQUEST]: handleConfirmCheckinRequest,
   [Types.GET_CONFIRM_CHECKIN_SUCCESS]: handleConfirmCheckinSuccess,
   [Types.GET_CONFIRM_CHECKIN_FAILURE]: handleConfirmCheckinfailure,
-  
+
   [Types.GET_CHECKIN_DECLINE_REQUEST]: handleCheckinDeclineRequest,
   [Types.GET_CHECKIN_DECLINE_SUCCESS]: handleCheckinDeclineSuccess,
   [Types.GET_CHECKIN_DECLINE_FAILURE]: handleCheckinDeclinefailure,
@@ -162,4 +179,5 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_UPDATE_PASSWORD]: handleupdatePassword,
   [Types.LOGIN_FLAG]: handleGetLogin,
   [Types.LOGOUT_USER]: handleLogoutUser,
+  [Types.GET_UPDATE_CUSTOMER_REMARK]: handleUpdateCustomerRemark,
 })

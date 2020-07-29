@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import {View, ScrollView, Text, FlatList, SafeAreaView} from 'react-native'
+import Textarea from 'react-native-textarea'
 import InputText from '../../Components/InputText'
 import TextButton from '../../Components/Button'
 import {connect} from 'react-redux'
@@ -7,6 +8,7 @@ import Actions from '../../Redux/LoginRedux'
 import {name, empty} from '../../Transforms/ConvertFromKelvin'
 import OptionalView from '../../Components/OptionalView'
 //import Loader from '../../Components/Loader'
+import _ from 'lodash'
 import {styles} from './styles'
 
 class LoginScreen extends Component {
@@ -30,6 +32,11 @@ class LoginScreen extends Component {
       this.props.updatePassword('error', 'Password can not be empty')
     }
   }
+  validateCustomerRemark = () => {
+    if (!empty(this.props.password)) {
+      this.props.updateCustomerRemark('error', 'Customer details can not be empty')
+    }
+  }
   validateUsername = () => {
     if (!this.props.userName)
       return this.props.updateUserName('error', 'Enter username')
@@ -46,6 +53,10 @@ class LoginScreen extends Component {
     this.props.updateFirstLevelKey('loginFailed', '')
     this.props.updatePassword('value', text)
   }
+  onCustomerRemark = (index) => (text) => {
+    this.props.updateFirstLevelKey('loginFailed', '')
+    this.props.updateCustomerRemark('value', text, index)
+  }
   renderNotifications = () => {
     if (this.props.packageEmpty) return null
     return (
@@ -54,31 +65,56 @@ class LoginScreen extends Component {
           paddingLeft: 10,
           paddingRight: 10,
         }}
+        scrollEventThrottle={true}
         ItemSeparatorComponent={() => <View style={{margin: 10}} />}
+        data={this.props.notoficationDetails}
         renderItem={this.renderItem}
       />
     )
   }
-  renderItem = item => {
+  renderItem = ({item, index}) => {
     return (
       <View style={styles.cellItem}>
-        <Text>Customer Name:</Text>
-        <Text>Mobile Number:</Text>
-        <Text>Emali:</Text>
-        <Text>Validty Date:</Text>
-        <Text>Activity Name:</Text>
-        <Text>Dues:</Text>
-        <Text>Address:</Text>
-        <TextButton
-        buttonName='Confirm'
-        onPress={this.props.checkinConfirm({
-
-        })}></TextButton>
-        <TextButton
-        buttonName='Decline'
-        onPress={this.props.checkinDecline({
-
-        })}></TextButton>
+        <Text>Customer Name: {_.get(item, 'UserName', '')}</Text>
+        <Text>Mobile Number:{_.get(item, 'Phone', '')}</Text>
+        <Text>Validty Date: {_.get(item, 'Date', '')}</Text>
+        <Text>Activity Name: {_.get(item, 'productName', '')}</Text>
+        <Text>Dues: {_.get(item, 'duesAmount', '')}</Text>
+        <View style={styles.textAreaView}>
+          <Textarea
+            containerStyle={styles.textareaContainer}
+            style={styles.textarea}
+            onChangeText={this.onCustomerRemark(index)}
+            
+            maxLength={120}
+            placeholder={'Enter details'}
+            placeholderTextColor={'#c7c7c7'}
+            underlineColorAndroid={'transparent'}
+            value={item.value}
+            onBlur={this.validateCustomerRemark}
+          />
+        </View>
+        <View>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            <TextButton
+              buttonName='Confirm'
+              onPress={this.props.checkinConfirm({
+                ActionId: 1,
+                CheckId: _.get(item, 'CheckId',''),
+                CustomerId: _.get(item, 'UserId',''),
+                CustomerId: _.get(item, 'UserId',''),
+                CustomerName: _.get(item, 'UserName',''),
+                Phone: _.get(item, 'Phone',''),
+                Comment: this.props.customerRemark
+              })}
+            />
+            <TextButton
+              buttonName='Decline'
+              onPress={this.props.checkinDecline({})}
+              style={{flex: 3, flexDirection: 'row'}}
+            />
+          </View>
+        </View>
       </View>
     )
   }
@@ -124,10 +160,10 @@ class LoginScreen extends Component {
                   flex: 1,
                   flexDirection: 'row',
                 }}>
-                  <TextButton
+                <TextButton
                   buttonName='Logout'
                   onPress={this.logOut}></TextButton>
-                </View>
+              </View>
               <this.renderNotifications />
             </SafeAreaView>
           </OptionalView>
@@ -143,10 +179,23 @@ const mapStateToProps = state => ({
   loader: state.login.loader,
   validPage: state.login.validPage,
 
+  loginDetails: _.get(
+    state,'login.loginDetails.Result', ''
+  ),
+
+  notoficationDetails: _.get(
+    state,
+    'login.notificationDetails.NotificationList', ''
+  ),
+  UserName:_.get(state, 'login.loginDetails.Result.UserName'),
+
   userName: state.login.userName.value,
   userNameError: state.login.userName.error,
   password: state.login.password.value,
   passwordError: state.login.password.error,
+
+  customerRemark: state.login.customerRemark.value,
+  customerRemarkError: state.login.customerRemark.error
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -156,11 +205,17 @@ const mapDispatchToProps = dispatch => ({
     dispatch(Actions.getUpdateUserName(key, value)),
   updatePassword: (key, value) =>
     dispatch(Actions.getUpdatePassword(key, value)),
+
+  updateCustomerRemark: (key, value, index) =>
+    dispatch(Actions.getUpdateCustomerRemark(key, value, index)),
+
   updateFirstLevelKey: (key, value) =>
     dispatch(Actions.updateFirstLevelKey(key, value)),
-    logOut: () => dispatch(Actions.logoutUser()),
-    checkinConfirm: (params) => () => dispatch(Actions.getConfirmCheckinRequest(params)),
-    checkinDecline: (params) => () => dispatch(Actions.getConfirmCheckinRequest(params)),
+  logOut: () => dispatch(Actions.logoutUser()),
+  checkinConfirm: params => () =>
+    dispatch(Actions.getConfirmCheckinRequest(params)),
+  checkinDecline: params => () =>
+    dispatch(Actions.getConfirmCheckinRequest(params)),
   setLoginStatus: value => () => dispatch(Actions.loginFlag(value)),
 })
 
