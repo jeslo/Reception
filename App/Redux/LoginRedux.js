@@ -10,17 +10,13 @@ const {Types, Creators} = createActions({
   getNotificationSuccess: ['data'],
   getNotificationFailure: ['data'],
 
-  getConfirmCheckinRequest: ['params'],
-  getConfirmCheckinSuccess: ['data'],
-  getConfirmCheckinFailure: ['data'],
-
-  getCheckinDeclineRequest: ['params'],
-  getCheckinDeclineSuccess: ['data'],
-  getCheckinDeclineFailure: ['data'],
+  getConfirmCheckinRequest: ['params','index'],
+  getCheckinConfirm: ['data'],
+  getCheckinDecline: ['data'],
+  getCheckinFailed: ['data','index'],
 
   updateFirstLevelKey: ['key', 'value'],
-  getUpdateUserName: ['key', 'value'],
-  getUpdatePassword: ['key', 'value'],
+  getUpdatePhone: ['key', 'value'],
   getUpdateCustomerRemark: ['key', 'value', 'index'],
 
   logoutUser: [],
@@ -34,15 +30,11 @@ export const INITIAL_STATE = Immutable({
   loginLoader: {},
   loginFailed: '',
   notificationDetails: {},
-  confimCheckinStatus: {},
+  confimCheckinStatus: '',
+  notificationFailureMessage: '',
 
   validPage: false,
-
-  userName: {
-    value: '',
-    error: '',
-  },
-  password: {
+  phone: {
     value: '',
     error: '',
   },
@@ -55,12 +47,13 @@ export const INITIAL_STATE = Immutable({
 /* ---------------------Reducers---------------------- */
 export const setLoader = state =>
   state.merge({
-    loginLoader: true,
+    loader: true,
   })
 export const handleLoginSuccess = (state, {data}) =>
-  state.merge({
+   state.merge({
     loginDetails: data,
     validPage: true,
+    loader: false
   })
 
 export const handleLoginfailure = (state, {data}) =>
@@ -72,69 +65,52 @@ export const handleLoginfailure = (state, {data}) =>
 
 export const handleNotificationRequest = (state, {data}) =>
   state.merge({
-    loader: false,
+    loader: true,
   })
 export const handleNotificationSuccess = (state, {data}) =>
   state.merge({
     notificationDetails: data,
     loader: false,
+    notificationFailureMessage: ''
   })
 export const handleNotificationfailure = (state, {data}) =>
   state.merge({
-    notificationDetails: data,
+    notificationFailureMessage: data,
     loader: false,
   })
 
 export const handleConfirmCheckinRequest = (state, {data}) =>
   state.merge({
-    loader: false,
+    loader: true,
   })
-export const handleConfirmCheckinSuccess = (state, {data}) =>
+export const handleCheckinConfirm = (state, {data}) =>
   state.merge({
     confimCheckinStatus: data,
     loader: false,
   })
-export const handleConfirmCheckinfailure = (state, {data}) =>
+export const handleCheckinDecline = (state, {data}) =>
   state.merge({
     confimCheckinStatus: data,
     loader: false,
   })
-
-export const handleCheckinDeclineRequest = (state, {data}) =>
-  state.merge({
+export const handleCheckinfailure = (state, {data,index}) =>{
+  const checkinError = Immutable.asMutable(
+    state.notificationDetails.NotificationList,
+    {deep: true}
+  )
+  checkinError[index] = {
+    ...checkinError[index],
+    confimCheckinStatus: data,
+    
+  }
+  return state.merge({
     loader: false,
+    notificationDetails: state.notificationDetails.merge({
+      NotificationList: Immutable(checkinError),
+      
+    })
   })
-export const handleCheckinDeclineSuccess = (state, {data}) =>
-  state.merge({
-    declineCheckinStatus: data,
-    loader: false,
-  })
-export const handleCheckinDeclinefailure = (state, {data}) =>
-  state.merge({
-    declineCheckinStatus: data,
-    loader: false,
-  })
-
-export const updateFirstLevelKey = (state, {key, value}) =>
-  state.merge({
-    [key]: value,
-  })
-
-export const handleupdateUserName = (state, {key, value}) =>
-  state.merge({
-    userName: state.userName.merge({
-      [key]: value,
-      error: key === 'error' ? value : '',
-    }),
-  })
-
-export const handleupdatePassword = (state, {key, value}) =>
-  state.merge({
-    password: state.password.merge({
-      [key]: value,
-      error: key === 'error' ? value : '',
-    }),
-  })
+}
 export const handleUpdateCustomerRemark = (state, {key, value, index}) => {
   const notifications = Immutable.asMutable(
     state.notificationDetails.NotificationList,
@@ -151,6 +127,18 @@ export const handleUpdateCustomerRemark = (state, {key, value, index}) => {
     }),
   })
 }
+export const handleupdatePhone = (state, {key, value}) =>
+  state.merge({
+    phone: state.phone.merge({
+      [key]: value,
+      error: key === 'error' ? value : '',
+    }),
+    loginFailed: ''
+  })
+export const updateFirstLevelKey = (state, {key, value}) =>
+  state.merge({
+    [key]: value,
+  })
 export const handleGetLogin = (state, {status}) =>
   state.merge({
     loginFailed: '',
@@ -167,16 +155,13 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_NOTIFICATION_FAILURE]: handleNotificationfailure,
 
   [Types.GET_CONFIRM_CHECKIN_REQUEST]: handleConfirmCheckinRequest,
-  [Types.GET_CONFIRM_CHECKIN_SUCCESS]: handleConfirmCheckinSuccess,
-  [Types.GET_CONFIRM_CHECKIN_FAILURE]: handleConfirmCheckinfailure,
+  [Types.GET_CHECKIN_CONFIRM]: handleCheckinConfirm,
+  [Types.GET_CHECKIN_DECLINE]: handleCheckinDecline,
+  [Types.GET_CHECKIN_FAILED]: handleCheckinfailure,
 
-  [Types.GET_CHECKIN_DECLINE_REQUEST]: handleCheckinDeclineRequest,
-  [Types.GET_CHECKIN_DECLINE_SUCCESS]: handleCheckinDeclineSuccess,
-  [Types.GET_CHECKIN_DECLINE_FAILURE]: handleCheckinDeclinefailure,
 
   [Types.UPDATE_FIRST_LEVEL_KEY]: updateFirstLevelKey,
-  [Types.GET_UPDATE_USER_NAME]: handleupdateUserName,
-  [Types.GET_UPDATE_PASSWORD]: handleupdatePassword,
+  [Types.GET_UPDATE_PHONE]: handleupdatePhone,
   [Types.LOGIN_FLAG]: handleGetLogin,
   [Types.LOGOUT_USER]: handleLogoutUser,
   [Types.GET_UPDATE_CUSTOMER_REMARK]: handleUpdateCustomerRemark,

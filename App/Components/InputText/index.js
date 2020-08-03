@@ -5,7 +5,7 @@ import OptionalView from '../../Components/OptionalView'
 const styles = {
   textInput: {
     flex: 1,
-    borderRadius: 44,
+    borderRadius: 10,
     minHeight: 50,
     marginBottom: 5,
     paddingHorizontal: 20,
@@ -41,6 +41,7 @@ export default class InputText extends React.Component {
           value={this.props.value}
           onBlur={this.onBlur}
           secureTextEntry={this.props.password}
+          keyboardType= 'number-pad'
 
         />
         <OptionalView hide={!this.props.error}>

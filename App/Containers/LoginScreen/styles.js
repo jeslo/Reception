@@ -5,15 +5,15 @@ export const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     alignItems: 'center',
+    marginTop: 200
    
   },
   logInBox: {
     marginTop: 20,
-    marginHorizontal: 20,
     backgroundColor: Colors.rbcblue,
     padding: 30,
     borderRadius: 20,
-    alignSelf: 'stretch'
+    alignSelf: 'stretch',
   },
   buttonText: {
     ...Fonts.style.normal,
@@ -30,6 +30,20 @@ export const styles = StyleSheet.create({
     padding: 10,
     marginTop: 20
   },
+  noNotifications: {
+    
+    padding: 50,
+    backgroundColor: 'orange',
+    color: 'white',
+    fontWeight: '900',
+    borderRadius: 10,
+    textAlign: 'center',
+    overflow: 'hidden',
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 100,
+    
+  },
   errorText: {
     marginBottom: 10,
     padding: 15,
@@ -41,7 +55,14 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     overflow: 'hidden'
   },
+  error: {
+    ...Fonts.style.small,
+    color: Colors.error,
+    marginRight: 5,
+    textAlign: 'right'
+  },
   cellItem: {
+    ...Fonts.style.normal,
     flex: 4,
     flexDirection: 'column',
     padding: 8,
@@ -53,7 +74,7 @@ export const styles = StyleSheet.create({
 textAreaView: {
   flex: 1,
   alignItems: 'center',
-  paddingLeft: 2,
+  paddingTop: 2,
   paddingBottom: 5
 },
 textareaContainer: {
@@ -67,5 +88,12 @@ textarea: {
   height: 170,
   fontSize: 14,
   color: '#333',
+  
 },
+cellItemDetailsText: {
+  ...Fonts.style.normal,
+  fontWeight: 'bold',
+  
+  
+}
 })

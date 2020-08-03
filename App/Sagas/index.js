@@ -4,7 +4,7 @@ import {takeLatest, all} from 'redux-saga/effects'
 
 import {loginTypes} from '../Redux/LoginRedux'
 /* ------------- Sagas ------------- */
-import { getLoginData, getNotifications,checkinConfirm,checkinDecline } from './LoginSagas'
+import { getLoginData, getNotifications,checkinConfirmOrDecline } from './LoginSagas'
 
 /* ------------- API ------------- */
 
@@ -17,7 +17,6 @@ export default function * root () {
   yield all([
     takeLatest(loginTypes.GET_LOGIN_DETAILS_REQUEST, getLoginData),
     takeLatest(loginTypes.GET_NOTIFICATION_REQUEST, getNotifications),
-    takeLatest(loginTypes.GET_CONFIRM_CHECKIN_REQUEST, checkinConfirm),
-    takeLatest(loginTypes.GET_CHECKIN_DECLINE_REQUEST, checkinDecline)
+    takeLatest(loginTypes.GET_CONFIRM_CHECKIN_REQUEST, checkinConfirmOrDecline),
   ])
 }

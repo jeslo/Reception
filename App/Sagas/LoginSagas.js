@@ -2,10 +2,10 @@ import {put} from 'redux-saga/effects'
 import {NavigationActions} from 'react-navigation'
 import Actions from '../Redux/LoginRedux'
 
-const LOGIN_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/CRMUserLogin'
+const LOGIN_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/StaffLogInByPhone'
 const NOTIFICATION_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/GetNotifications'
-const CHECKIN_CONFIRM_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/getAllNotificationList'
-const CHECKIN_DECLINE_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/getAllNotificationList'
+const CHECKIN_CONFIRM_URL = 'http://crmservice.rbcentre.com/api/CRMMobApp/ConfirmCheckIn'
+
 
 export function * getLoginData ({params}) {
   const postOptions = {
@@ -20,7 +20,7 @@ export function * getLoginData ({params}) {
   const result = yield fetch(LOGIN_URL, postOptions)
     .then(resp => resp.json())
     .then(r => r)
-    .catch(e => console.tron.log('>>>>>>eeeee, e'))
+    .catch(e => console.tron.log('>>>>>>eeeee', e))
   if (result.Flag === 1) {
     yield put(Actions.getLoginDetailsSuccess(result))
     yield put(Actions.getNotificationRequest())
@@ -42,10 +42,12 @@ export function * getNotifications() {
     .catch(e => console.tron.log('>>>>>>eeeee, e'))
   if (result.Flag === 1) {
     yield put(Actions.getNotificationSuccess(result))
-  } else return yield put(Actions.getNotificationFailure(result))
+  } 
+  else if (result.Flag === 2) return yield put(Actions.getNotificationFailure(result.Result))
+  else return yield put(Actions.getNotificationFailure(result))
 }
 
-export function * checkinConfirm() {
+export function * checkinConfirmOrDecline({params,index}) {
   const postOptions = {
     method: 'POST',
     headers: {
@@ -57,25 +59,19 @@ export function * checkinConfirm() {
   const result = yield fetch(CHECKIN_CONFIRM_URL, postOptions)
     .then(resp => resp.json())
     .then(r => r)
-    .catch(e => console.tron.log('>>>>>>eeeee, e'))
-  if (result.Flag === 1) {
-    yield put(Actions.getNotificationSuccess(result))
-  } else return yield put(Actions.getNotificationFailure(result))
-}
-export function * checkinDecline() {
-  const postOptions = {
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify(params),
+    .catch(e => console.tron.log('>>>>>>eeeee', e))
+  if (result.Flag === '1') 
+  {
+   yield put(Actions.getCheckinConfirm(result))
+   yield put(Actions.getNotificationRequest())
   }
-  const result = yield fetch(CHECKIN_DECLINE_URL, postOptions)
-    .then(resp => resp.json())
-    .then(r => r)
-    .catch(e => console.tron.log('>>>>>>eeeee, e'))
-  if (result.Flag === 1) {
-    yield put(Actions.getCheckinDeclineSuccess(result))
-  } else return yield put(Actions.getCheckinDeclineFailure(result))
+  else if (result.Flag === '2')
+  { 
+    yield put(Actions.getCheckinDecline(result))
+    yield put(Actions.getNotificationRequest())
+  }
+  else 
+  {
+     yield put(Actions.getCheckinFailed(result.Result,index))
+  }
 }

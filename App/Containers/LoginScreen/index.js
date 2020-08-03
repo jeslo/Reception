@@ -1,15 +1,27 @@
 import React, {Component} from 'react'
-import {View, ScrollView, Text, FlatList, SafeAreaView} from 'react-native'
+import {
+  View,
+  ScrollView,
+  Text,
+  FlatList,
+  SafeAreaView,
+  Image,
+  Button,
+} from 'react-native'
 import Textarea from 'react-native-textarea'
 import InputText from '../../Components/InputText'
 import TextButton from '../../Components/Button'
 import {connect} from 'react-redux'
 import Actions from '../../Redux/LoginRedux'
-import {name, empty} from '../../Transforms/ConvertFromKelvin'
+import {empty} from '../../Transforms/ConvertFromKelvin'
 import OptionalView from '../../Components/OptionalView'
-//import Loader from '../../Components/Loader'
+import Loader from '../../Components/Loader'
+import TouchableOpacity from '../../Components/Touchable'
 import _ from 'lodash'
 import {styles} from './styles'
+import Moment from 'moment'
+
+console.disableYellowBox = true
 
 class LoginScreen extends Component {
   state = {
@@ -18,8 +30,7 @@ class LoginScreen extends Component {
   }
   fetchLogin = () => {
     this.props.getLoginData({
-      crmUserName: this.props.userName,
-      crmPassword: this.props.password,
+      Phone: this.props.phone,
     })
   }
 
@@ -27,91 +38,135 @@ class LoginScreen extends Component {
     this.props.navigation.goBack()
     this.props.logOut()
   }
-  validatePassword = () => {
-    if (!empty(this.props.password)) {
-      this.props.updatePassword('error', 'Password can not be empty')
-    }
+  refreshNotifications = () => {
+    this.props.refreshNotification()
   }
-  validateCustomerRemark = () => {
-    if (!empty(this.props.password)) {
-      this.props.updateCustomerRemark('error', 'Customer details can not be empty')
-    }
-  }
-  validateUsername = () => {
-    if (!this.props.userName)
-      return this.props.updateUserName('error', 'Enter username')
-    if (!name(this.props.userName)) {
-      this.props.updateUserName('error', 'Enter a valid user name')
+
+  validatePhone = () => {
+    if (!empty(this.props.phone)) {
+      this.props.updatePhoneNumber('error', 'Phone number can not be empty')
     }
   }
 
-  onChangeUserName = text => {
-    this.props.updateFirstLevelKey('loginFailed', '')
-    this.props.updateUserName('value', text)
+  validateCustomerRemark = index => () => {
+    if (!empty(this.props.notificationDetails.value)) {
+      this.props.updateCustomerRemark(
+        'error',
+        this.props.notificationDetails.value,
+        index,
+      )
+    }
   }
-  onChangePassword = text => {
-    this.props.updateFirstLevelKey('loginFailed', '')
-    this.props.updatePassword('value', text)
+  onChangePhoneNumber = text => {
+    this.props.updatePhoneNumber('value', text)
   }
-  onCustomerRemark = (index) => (text) => {
-    this.props.updateFirstLevelKey('loginFailed', '')
+  onCustomerRemark = index => text => {
     this.props.updateCustomerRemark('value', text, index)
   }
   renderNotifications = () => {
-    if (this.props.packageEmpty) return null
-    return (
-      <FlatList
-        style={{
-          paddingLeft: 10,
-          paddingRight: 10,
-        }}
-        scrollEventThrottle={true}
-        ItemSeparatorComponent={() => <View style={{margin: 10}} />}
-        data={this.props.notoficationDetails}
-        renderItem={this.renderItem}
-      />
-    )
+    if (this.props.notificationFailed)
+      return (
+        <Text style={styles.noNotifications}>
+          {this.props.notificationFailed}
+        </Text>
+      )
+    else {
+      return (
+        <FlatList
+          style={{
+            paddingLeft: 10,
+            paddingRight: 10,
+          }}
+          scrollEventThrottle={true}
+          ItemSeparatorComponent={() => <View style={{margin: 10}} />}
+          data={this.props.notificationDetails}
+          renderItem={this.renderItem}
+        />
+      )
+    }
   }
+
   renderItem = ({item, index}) => {
+    var validitydate = Moment(item.Date).format('MMM Do YYYY')
     return (
       <View style={styles.cellItem}>
-        <Text>Customer Name: {_.get(item, 'UserName', '')}</Text>
-        <Text>Mobile Number:{_.get(item, 'Phone', '')}</Text>
-        <Text>Validty Date: {_.get(item, 'Date', '')}</Text>
-        <Text>Activity Name: {_.get(item, 'productName', '')}</Text>
-        <Text>Dues: {_.get(item, 'duesAmount', '')}</Text>
+        <Text>
+          Customer Name: &nbsp;{' '}
+          <Text style={styles.cellItemDetailsText}>
+            {_.get(item, 'UserName', '')}
+          </Text>
+        </Text>
+        <Text>
+          Mobile Number:&nbsp;{' '}
+          <Text style={styles.cellItemDetailsText}>
+            {_.get(item, 'Phone', '')}
+          </Text>
+        </Text>
+        <Text>
+          Validty Date: &nbsp;{' '}
+          <Text style={styles.cellItemDetailsText}>{validitydate}</Text>
+        </Text>
+        <Text>
+          Activity Name: &nbsp;{' '}
+          <Text style={styles.cellItemDetailsText}>
+            {_.get(item, 'productName', '')}
+          </Text>
+        </Text>
+        <Text>
+          Dues: &nbsp;{' '}
+          <Text style={styles.cellItemDetailsText}>
+            {_.get(item, 'duesAmount', '')}
+          </Text>
+        </Text>
         <View style={styles.textAreaView}>
           <Textarea
             containerStyle={styles.textareaContainer}
             style={styles.textarea}
             onChangeText={this.onCustomerRemark(index)}
-            
-            maxLength={120}
-            placeholder={'Enter details'}
+            maxLength={200}
+            placeholder={'Enter Comment'}
             placeholderTextColor={'#c7c7c7'}
             underlineColorAndroid={'transparent'}
             value={item.value}
-            onBlur={this.validateCustomerRemark}
+            // onBlur={this.validateCustomerRemark(index)}
           />
+          <OptionalView hide={!item.confimCheckinStatus}>
+            <Text style={styles.error}>{item.confimCheckinStatus}</Text>
+          </OptionalView>
         </View>
         <View>
           <View style={{flex: 1, flexDirection: 'row'}}>
             <TextButton
               buttonName='Confirm'
-              onPress={this.props.checkinConfirm({
-                ActionId: 1,
-                CheckId: _.get(item, 'CheckId',''),
-                CustomerId: _.get(item, 'UserId',''),
-                CustomerId: _.get(item, 'UserId',''),
-                CustomerName: _.get(item, 'UserName',''),
-                Phone: _.get(item, 'Phone',''),
-                Comment: this.props.customerRemark
-              })}
+              onPress={this.props.checkinConfirmOrDecline(
+                {
+                  ActionId: 1,
+                  CheckId: _.get(item, 'CheckId', ''),
+                  CustomerId: _.get(item, 'UserId', ''),
+                  CustomerName: _.get(item, 'UserName', ''),
+                  Phone: _.get(item, 'Phone', ''),
+                  Comment: _.get(item, 'value', null),
+                  UserName: this.props.userName,
+                },
+                index,
+              )}
+              style={{flex: 1, flexDirection: 'row', marginRight: 5}}
             />
             <TextButton
               buttonName='Decline'
-              onPress={this.props.checkinDecline({})}
-              style={{flex: 3, flexDirection: 'row'}}
+              onPress={this.props.checkinConfirmOrDecline(
+                {
+                  ActionId: 2,
+                  CheckId: _.get(item, 'CheckId', ''),
+                  CustomerId: _.get(item, 'UserId', ''),
+                  CustomerName: _.get(item, 'UserName', ''),
+                  Phone: _.get(item, 'Phone', ''),
+                  Comment: _.get(item, 'value', null),
+                  UserName: this.props.userName,
+                },
+                index,
+              )}
+              style={{flex: 1, flexDirection: 'row', marginLeft: 5}}
             />
           </View>
         </View>
@@ -120,29 +175,32 @@ class LoginScreen extends Component {
   }
   render () {
     return (
-      <View style={{flex: 1, backgroundColor: ''}}>
+      <View style={{flex: 1}}>
         <ScrollView>
           <OptionalView hide={this.props.validPage}>
             <View style={styles.conatiner}>
+              <Image
+                source={require('./Image/RBClogo.png')}
+                style={{
+                  height: 100,
+                  width: 100,
+                  resizeMode: 'contain',
+                }}
+              />
               <View style={styles.logInBox}>
                 <InputText
-                  onChangeText={this.onChangeUserName}
-                  placeholder='Enter UserName'
-                  value={this.props.userName}
-                  error={this.props.userNameError}
-                  onBlur={this.validateUsername}
+                  onChangeText={this.onChangePhoneNumber}
+                  placeholder='Enter phone number'
+                  value={this.props.phone}
+                  error={this.props.phoneError}
+                  onBlur={this.validatePhone}
+                  keyboardType
                 />
-                <InputText
-                  onChangeText={this.onChangePassword}
-                  placeholder={'Enter Password'}
-                  value={this.props.password}
-                  textContentType='password'
-                  onBlur={this.validatePassword}
-                  error={this.props.passwordError}
-                  password
-                />
+                <OptionalView hide={!this.props.loader}>
+                  <Loader />
+                </OptionalView>
                 <OptionalView hide={!this.props.loginFailed}>
-                  <Text style={styles.errorText}>{this.props.loginFailed}</Text>
+                  <Text style={styles.errorText}>User not found.!</Text>
                 </OptionalView>
                 <TextButton
                   buttonName='Login'
@@ -163,6 +221,29 @@ class LoginScreen extends Component {
                 <TextButton
                   buttonName='Logout'
                   onPress={this.logOut}></TextButton>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row-reverse',
+                    paddingLeft: 10,
+                    height: 50, width: 30
+                  }}>
+                  <OptionalView hide={this.props.loader}>
+                    <TouchableOpacity onPress={this.refreshNotifications}>
+                      <Image
+                        source={require('./Image/refresh.png')}
+                        style={{
+                          height: 50,
+                          width: 30,
+                          resizeMode: 'contain',
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </OptionalView>
+                  <OptionalView hide={!this.props.loader}>
+                    <Loader style={{height: 50, width: 30}} />
+                  </OptionalView>
+                </View>
               </View>
               <this.renderNotifications />
             </SafeAreaView>
@@ -174,28 +255,22 @@ class LoginScreen extends Component {
 }
 const mapStateToProps = state => ({
   isLogin: state.login.isLogin,
-  loginDetails: state.login.loginDetails,
+
   loginFailed: state.login.loginFailed,
   loader: state.login.loader,
   validPage: state.login.validPage,
+  notificationFailed: state.login.notificationFailureMessage,
 
-  loginDetails: _.get(
-    state,'login.loginDetails.Result', ''
-  ),
-
-  notoficationDetails: _.get(
+  CommentText: _.get(state, 'login.notificationDetails.NotificationList.value'),
+  userName: _.get(state, 'login.loginDetails.result.Username', ''),
+  notificationDetails: _.get(
     state,
-    'login.notificationDetails.NotificationList', ''
+    'login.notificationDetails.NotificationList',
+    '',
   ),
-  UserName:_.get(state, 'login.loginDetails.Result.UserName'),
 
-  userName: state.login.userName.value,
-  userNameError: state.login.userName.error,
-  password: state.login.password.value,
-  passwordError: state.login.password.error,
-
-  customerRemark: state.login.customerRemark.value,
-  customerRemarkError: state.login.customerRemark.error
+  phone: state.login.phone.value,
+  phoneError: state.login.phone.error,
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -203,8 +278,12 @@ const mapDispatchToProps = dispatch => ({
 
   updateUserName: (key, value) =>
     dispatch(Actions.getUpdateUserName(key, value)),
+
   updatePassword: (key, value) =>
     dispatch(Actions.getUpdatePassword(key, value)),
+
+  updatePhoneNumber: (key, value) =>
+    dispatch(Actions.getUpdatePhone(key, value)),
 
   updateCustomerRemark: (key, value, index) =>
     dispatch(Actions.getUpdateCustomerRemark(key, value, index)),
@@ -212,10 +291,11 @@ const mapDispatchToProps = dispatch => ({
   updateFirstLevelKey: (key, value) =>
     dispatch(Actions.updateFirstLevelKey(key, value)),
   logOut: () => dispatch(Actions.logoutUser()),
-  checkinConfirm: params => () =>
-    dispatch(Actions.getConfirmCheckinRequest(params)),
-  checkinDecline: params => () =>
-    dispatch(Actions.getConfirmCheckinRequest(params)),
+  refreshNotification: () => dispatch(Actions.getNotificationRequest()),
+
+  checkinConfirmOrDecline: (params, index) => () =>
+    dispatch(Actions.getConfirmCheckinRequest(params, index)),
+
   setLoginStatus: value => () => dispatch(Actions.loginFlag(value)),
 })
 
