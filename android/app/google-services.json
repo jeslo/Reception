@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "211310666600",
+    "firebase_url": "https://reception-837e1.firebaseio.com",
+    "project_id": "reception-837e1",
+    "storage_bucket": "reception-837e1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211310666600:android:3a582813538f989dfc2cdd",
+        "android_client_info": {
+          "package_name": "com.reception"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211310666600-4vt6cufa32gghe68vkmo812p5essrrog.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1A14fXgH9O2b5blfDqVEFLcvvoQlE-qs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211310666600-4vt6cufa32gghe68vkmo812p5essrrog.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
