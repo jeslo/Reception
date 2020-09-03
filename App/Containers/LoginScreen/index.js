@@ -6,7 +6,6 @@ import {
   FlatList,
   SafeAreaView,
   Image,
-  Button,
 } from 'react-native'
 import Textarea from 'react-native-textarea'
 import InputText from '../../Components/InputText'
@@ -17,9 +16,11 @@ import {empty} from '../../Transforms/ConvertFromKelvin'
 import OptionalView from '../../Components/OptionalView'
 import Loader from '../../Components/Loader'
 import TouchableOpacity from '../../Components/Touchable'
+import Checkbox from '../../Components/CheckBox'
 import _ from 'lodash'
 import {styles} from './styles'
 import Moment from 'moment'
+
 
 console.disableYellowBox = true
 
@@ -29,14 +30,23 @@ class LoginScreen extends Component {
     item: {},
   }
   fetchLogin = () => {
-    this.props.getLoginData({
-      Phone: this.props.phone,
-    })
+    if (this.props.checkBoxFlag) {
+      this.props.getLoginData({
+        Phone: this.props.phone,
+      })
+    } else {
+    }
   }
 
   logOut = () => {
     this.props.navigation.goBack()
-    this.props.logOut()
+    this.props.logOut({
+      // StaffId: this.props.userID,
+      phone: this.props.phone,
+    })
+  }
+  checkBoxSet = () => {
+    this.props.updateCheckBox(!this.props.checkBoxFlag)
   }
   refreshNotifications = () => {
     this.props.refreshNotification()
@@ -87,7 +97,8 @@ class LoginScreen extends Component {
   }
 
   renderItem = ({item, index}) => {
-    var validitydate = Moment(item.Date).format('MMM Do YYYY')
+    var validitydate = Moment(item.ValidityDate).format('MMM Do YYYY')
+
     return (
       <View style={styles.cellItem}>
         <Text>
@@ -127,9 +138,10 @@ class LoginScreen extends Component {
             placeholder={'Enter Comment'}
             placeholderTextColor={'#c7c7c7'}
             underlineColorAndroid={'transparent'}
-            value={item.value}
-            // onBlur={this.validateCustomerRemark(index)}
+            value={item.value === '' ? null : item.value}
+            onBlur={this.validateCustomerRemark(index)}
           />
+
           <OptionalView hide={!item.confimCheckinStatus}>
             <Text style={styles.error}>{item.confimCheckinStatus}</Text>
           </OptionalView>
@@ -145,7 +157,7 @@ class LoginScreen extends Component {
                   CustomerId: _.get(item, 'UserId', ''),
                   CustomerName: _.get(item, 'UserName', ''),
                   Phone: _.get(item, 'Phone', ''),
-                  Comment: _.get(item, 'value', null),
+                  Comment: item.value === '' ? null : item.value,
                   UserName: this.props.userName,
                 },
                 index,
@@ -161,7 +173,7 @@ class LoginScreen extends Component {
                   CustomerId: _.get(item, 'UserId', ''),
                   CustomerName: _.get(item, 'UserName', ''),
                   Phone: _.get(item, 'Phone', ''),
-                  Comment: _.get(item, 'value', null),
+                  Comment: item.value === '' ? null : item.value,
                   UserName: this.props.userName,
                 },
                 index,
@@ -196,12 +208,18 @@ class LoginScreen extends Component {
                   onBlur={this.validatePhone}
                   keyboardType
                 />
+                <Checkbox
+                  checkBoxLabel='I am in charge of front office now'
+                  mark={this.props.checkBoxFlag === true ? '✔' : ''}
+                  notChecked={true}
+                  onPress={this.checkBoxSet}></Checkbox>
                 <OptionalView hide={!this.props.loader}>
                   <Loader />
                 </OptionalView>
                 <OptionalView hide={!this.props.loginFailed}>
                   <Text style={styles.errorText}>User not found.!</Text>
                 </OptionalView>
+
                 <TextButton
                   buttonName='Login'
                   onPress={this.fetchLogin}></TextButton>
@@ -226,7 +244,8 @@ class LoginScreen extends Component {
                     flex: 1,
                     flexDirection: 'row-reverse',
                     paddingLeft: 10,
-                    height: 50, width: 30
+                    height: 50,
+                    width: 30,
                   }}>
                   <OptionalView hide={this.props.loader}>
                     <TouchableOpacity onPress={this.refreshNotifications}>
@@ -260,9 +279,15 @@ const mapStateToProps = state => ({
   loader: state.login.loader,
   validPage: state.login.validPage,
   notificationFailed: state.login.notificationFailureMessage,
+  checkBoxFlag: state.login.checkBoxFlag,
 
-  CommentText: _.get(state, 'login.notificationDetails.NotificationList.value'),
+  CommentText: _.get(
+    state,
+    'login.notificationDetails.NotificationList.value',
+    '',
+  ),
   userName: _.get(state, 'login.loginDetails.result.Username', ''),
+  userID: _.get(state, 'login.loginDetails.result.UserId', ''),
   notificationDetails: _.get(
     state,
     'login.notificationDetails.NotificationList',
@@ -290,7 +315,8 @@ const mapDispatchToProps = dispatch => ({
 
   updateFirstLevelKey: (key, value) =>
     dispatch(Actions.updateFirstLevelKey(key, value)),
-  logOut: () => dispatch(Actions.logoutUser()),
+  logOut: params => dispatch(Actions.logoutUser(params)),
+  updateCheckBox: data => dispatch(Actions.updateCheckBoxValue(data)),
   refreshNotification: () => dispatch(Actions.getNotificationRequest()),
 
   checkinConfirmOrDecline: (params, index) => () =>

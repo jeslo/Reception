@@ -18,8 +18,12 @@ const {Types, Creators} = createActions({
   updateFirstLevelKey: ['key', 'value'],
   getUpdatePhone: ['key', 'value'],
   getUpdateCustomerRemark: ['key', 'value', 'index'],
+  updateCheckBoxValue: ['data'],
 
-  logoutUser: [],
+  logoutUser: ['params'],
+  logoutUserSuccess: ['data'],
+  logoutUseFailure: ['data'],
+
   loginFlag: [],
 })
 export const loginTypes = Types
@@ -32,7 +36,7 @@ export const INITIAL_STATE = Immutable({
   notificationDetails: {},
   confimCheckinStatus: '',
   notificationFailureMessage: '',
-
+  checkBoxFlag: false,
   validPage: false,
   phone: {
     value: '',
@@ -61,6 +65,7 @@ export const handleLoginfailure = (state, {data}) =>
     loginFailed: data,
     loader: false,
     validPage: false,
+    checkBoxFlag: false
   })
 
 export const handleNotificationRequest = (state, {data}) =>
@@ -143,7 +148,20 @@ export const handleGetLogin = (state, {status}) =>
   state.merge({
     loginFailed: '',
   })
-export const handleLogoutUser = state => INITIAL_STATE
+export const handleCheckBox = (state, {data}) =>
+  state.merge({
+    checkBoxFlag: data
+  })
+export const handleLogoutUserSuccess = state => INITIAL_STATE
+
+export const handleLogoutUser = (state) =>
+  state.merge({
+    loader: true,
+  })
+export const handleLogoutUserFailure = (state, {data}) =>
+  state.merge({
+    loader: false,
+  })
 
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_LOGIN_DETAILS_REQUEST]: setLoader,
@@ -163,6 +181,11 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.UPDATE_FIRST_LEVEL_KEY]: updateFirstLevelKey,
   [Types.GET_UPDATE_PHONE]: handleupdatePhone,
   [Types.LOGIN_FLAG]: handleGetLogin,
+
   [Types.LOGOUT_USER]: handleLogoutUser,
+  [Types.LOGOUT_USER_SUCCESS]: handleLogoutUserSuccess,
+  [Types.LOGOUT_USE_FAILURE]: handleLogoutUserFailure,
+
+  [Types.UPDATE_CHECK_BOX_VALUE]: handleCheckBox,
   [Types.GET_UPDATE_CUSTOMER_REMARK]: handleUpdateCustomerRemark,
 })

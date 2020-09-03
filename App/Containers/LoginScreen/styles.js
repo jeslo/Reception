@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
     ...Fonts.style.small,
     color: Colors.error,
     marginRight: 5,
-    textAlign: 'right'
+    alignSelf: 'flex-end'
   },
   cellItem: {
     ...Fonts.style.normal,
