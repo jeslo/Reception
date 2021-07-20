@@ -40,7 +40,7 @@
     "ramdasauce": "^2.1.3",
     "react": "16.9.0",
     "react-moment": "^0.9.7",
-    "react-native": "^0.61.0",
+    "react-native": "^0.62.3",
     "react-native-activity-indicator": "^0.0.4",
     "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git",
     "react-native-config": "^0.12.0",
